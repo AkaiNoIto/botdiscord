@@ -179,6 +179,36 @@ export default function SettingsPage() {
                          </div>
                       </div>
  
+                      {/* Leave Module */}
+                      <div className="space-y-6">
+                         <h3 className="text-xs font-black text-zinc-500 flex items-center gap-2 uppercase tracking-[0.2em] border-b border-zinc-900 pb-3">
+                            <Bell className="w-4 h-4 text-red-400" /> Protocole de Depart
+                         </h3>
+                         <div className="space-y-4">
+                            <div className="space-y-2">
+                              <label className="text-xs font-bold text-zinc-600 uppercase ml-1">ID du Salon</label>
+                              <div className="relative">
+                                  <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
+                                  <input
+                                      type="text"
+                                      value={guildSettings.leaveChannel || ""}
+                                      onChange={(e) => handleUpdateSetting(guildId, "leaveChannel", e.target.value)}
+                                      className="w-full p-4 pl-12 bg-zinc-900 border border-zinc-800 rounded-2xl focus:border-red-400 outline-none transition-all text-white font-medium"
+                                      placeholder="ID du salon..."
+                                  />
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-xs font-bold text-zinc-600 uppercase ml-1">Message de Depart</label>
+                              <textarea
+                                  value={guildSettings.leaveMessage || ""}
+                                  onChange={(e) => handleUpdateSetting(guildId, "leaveMessage", e.target.value)}
+                                  className="w-full p-4 bg-zinc-900 border border-zinc-800 rounded-2xl focus:border-red-400 outline-none transition-all text-white font-medium min-h-[100px]"
+                                  placeholder="{user} a quitte le serveur..."
+                              />
+                            </div>
+                         </div>
+                      </div>
                       {/* Support Module */}
                       <div className="space-y-6">
                          <h3 className="text-xs font-black text-blue-500 flex items-center gap-2 uppercase tracking-[0.2em] border-b border-zinc-900 pb-3">
@@ -458,3 +488,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+

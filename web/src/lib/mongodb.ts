@@ -16,7 +16,7 @@ export async function connectDB() {
 
 // Models
 const CustomCommandsSchema = new mongoose.Schema({ guildId: { type: String, required: true, unique: true }, commands: { type: Map, of: new mongoose.Schema({ text: String, image: String }) } });
-const SettingsSchema = new mongoose.Schema({ guildId: { type: String, required: true, unique: true }, welcomeChannel: String, coinsPerMessage: Number, coinsPerVoiceMinute: Number, levelUpChannel: String, autoModEnabled: Boolean });
+const SettingsSchema = new mongoose.Schema({ guildId: { type: String, required: true, unique: true }, welcomeChannel: String, coinsPerMessage: Number, coinsPerVoiceMinute: Number, levelUpChannel: String, autoModEnabled: Boolean, leaveChannel: String, leaveMessage: String });
 const BadWordsSchema = new mongoose.Schema({ guildId: { type: String, required: true, unique: true }, words: [String] });
 const ShopSchema = new mongoose.Schema({ guildId: { type: String, required: true, unique: true }, items: [{ id: String, name: String, description: String, price: Number, emoji: String, roleId: String, stock: Number }] });
 const StatsSchema = new mongoose.Schema({ guildId: { type: String, required: true, unique: true }, history: [{ date: String, members: Number, wealth: Number }] });
@@ -32,3 +32,4 @@ export const Stats = mongoose.models.Stats || mongoose.model("Stats", StatsSchem
 export const Economy = mongoose.models.Economy || mongoose.model("Economy", EconomySchema);
 export const Level = mongoose.models.Level || mongoose.model("Level", LevelSchema);
 export const Lists = mongoose.models.Lists || mongoose.model("Lists", ListsSchema);
+

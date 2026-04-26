@@ -1,24 +1,29 @@
-const { EmbedBuilder } = require('discord.js');
-const { getSettings } = require('../src/utils/settingsManager');
+const { EmbedBuilder, AttachmentBuilder } = require("discord.js");
+const { getSettings } = require("../src/utils/settingsManager");
+const { createWelcomeCard } = require("../src/utils/canvasGenerator");
 
 module.exports = {
-    name: 'guildMemberRemove',
+    name: "guildMemberRemove",
     async execute(member) {
-        const settings = getSettings();
-        const logChannelId = settings[member.guild.id]?.logChannel;
-        if (!logChannelId) return;
+        const settings = await getSettings();
+        const guildSettings = settings[member.guild.id];
+        if (!guildSettings) return;
 
-        const logChannel = member.guild.channels.cache.get(logChannelId);
-        if (!logChannel) return;
+        // Canal de depart
+        const channelId = guildSettings.leaveChannel || guildSettings.welcomeChannel || member.guild.systemChannelId;
+        if (!channelId) return;
+        const channel = member.guild.channels.cache.get(channelId);
+        if (!channel) return;
 
-        const embed = new EmbedBuilder()
-            .setTitle('Member Left')
-            .setColor('#FEE75C')
-            .setDescription(`**${member.user.tag}** has left the server.`)
-            .setThumbnail(member.user.displayAvatarURL())
-            .addFields({ name: 'ID', value: member.id })
-            .setTimestamp();
+        let leaveMessage = guildSettings.leaveMessage || "**{user}** a quitté le serveur. Bonne continuation !";
+        leaveMessage = leaveMessage.replace(/{user}/g, member.user.tag).replace(/{guild}/g, member.guild.name);
 
-        logChannel.send({ embeds: [embed] });
-    },
+        try {
+            const buffer = await createWelcomeCard(member);
+            const attachment = new AttachmentBuilder(buffer, { name: "goodbye.png" });
+            channel.send({ content: leaveMessage, files: [attachment] });
+        } catch (e) {
+            channel.send(leaveMessage);
+        }
+    }
 };
