@@ -1,28 +1,24 @@
-import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-
-const settingsPath = path.join(process.cwd(), '../src/data/settings.json');
+import { connectDB, Settings } from "@/lib/mongodb";
 
 export async function GET() {
     const session = await getServerSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const data = JSON.parse(fs.readFileSync(settingsPath, 'utf8') || '{}');
-    return NextResponse.json(data);
+    await connectDB();
+    const docs = await Settings.find({});
+    const result: any = {};
+    docs.forEach((d: any) => result[d.guildId] = { welcomeChannel: d.welcomeChannel, coinsPerMessage: d.coinsPerMessage, coinsPerVoiceMinute: d.coinsPerVoiceMinute, levelUpChannel: d.levelUpChannel, autoModEnabled: d.autoModEnabled });
+    return NextResponse.json(result);
 }
 
 export async function POST(req: Request) {
     const session = await getServerSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
     const body = await req.json();
-    const data = JSON.parse(fs.readFileSync(settingsPath, 'utf8') || '{}');
-    
-    // Merge or set data
-    const updatedData = { ...data, ...body };
-    fs.writeFileSync(settingsPath, JSON.stringify(updatedData, null, 4));
-
+    await connectDB();
+    for (const [guildId, val] of Object.entries(body) as [string, any][]) {
+        await Settings.findOneAndUpdate({ guildId }, val, { upsert: true });
+    }
     return NextResponse.json({ success: true });
 }

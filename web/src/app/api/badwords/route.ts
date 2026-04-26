@@ -1,38 +1,27 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
-import fs from 'fs';
-import path from 'path';
-
-const badwordsPath = path.join(process.cwd(), '../src/data/badwords.json');
-
-const readFile = (p: string) => {
-    try {
-        if (!fs.existsSync(p)) return {};
-        const data = fs.readFileSync(p, 'utf8');
-        return data ? JSON.parse(data) : {};
-    } catch { return {}; }
-};
+import { connectDB, BadWords } from "@/lib/mongodb";
 
 export async function GET() {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const badWords = readFile(badwordsPath);
-    return NextResponse.json(badWords);
+    await connectDB();
+    const docs = await BadWords.find({});
+    const result: any = {};
+    docs.forEach((d: any) => result[d.guildId] = d.words);
+    return NextResponse.json(result);
 }
 
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
     try {
         const words = await req.json();
-        if (typeof words !== 'object' || words === null || Array.isArray(words)) {
-            return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+        await connectDB();
+        for (const [guildId, w] of Object.entries(words) as [string, any][]) {
+            await BadWords.findOneAndUpdate({ guildId }, { words: w }, { upsert: true });
         }
-
-        fs.writeFileSync(badwordsPath, JSON.stringify(words, null, 4));
         return NextResponse.json({ success: true });
     } catch (e: any) {
         return NextResponse.json({ error: e.message }, { status: 500 });
