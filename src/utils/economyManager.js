@@ -1,18 +1,18 @@
-const fs = require('fs');
-const path = require('path');
+const { connectDB, Economy } = require("../models");
 
-const economyPath = path.join(__dirname, '../data/economy.json');
-
-const getEconomy = () => {
-    const data = fs.readFileSync(economyPath, 'utf8');
-    return data ? JSON.parse(data) : {};
+const getEconomy = async () => {
+  await connectDB();
+  const docs = await Economy.find({});
+  const result = {};
+  docs.forEach(d => result[d.userId] = { balance: d.balance });
+  return result;
 };
 
-const saveEconomy = (data) => {
-    fs.writeFileSync(economyPath, JSON.stringify(data, null, 4));
+const saveEconomy = async (data) => {
+  await connectDB();
+  for (const [userId, val] of Object.entries(data)) {
+    await Economy.findOneAndUpdate({ userId }, { balance: val.balance }, { upsert: true });
+  }
 };
 
-module.exports = {
-    getEconomy,
-    saveEconomy
-};
+module.exports = { getEconomy, saveEconomy };

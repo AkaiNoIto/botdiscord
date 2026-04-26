@@ -1,18 +1,18 @@
-const fs = require('fs');
-const path = require('path');
+const { connectDB, Settings } = require("../models");
 
-const settingsPath = path.join(__dirname, '../data/settings.json');
-
-const getSettings = () => {
-    const data = fs.readFileSync(settingsPath, 'utf8');
-    return data ? JSON.parse(data) : {};
+const getSettings = async () => {
+  await connectDB();
+  const docs = await Settings.find({});
+  const result = {};
+  docs.forEach(d => result[d.guildId] = { welcomeChannel: d.welcomeChannel, coinsPerMessage: d.coinsPerMessage, coinsPerVoiceMinute: d.coinsPerVoiceMinute, levelUpChannel: d.levelUpChannel, autoModEnabled: d.autoModEnabled });
+  return result;
 };
 
-const saveSettings = (data) => {
-    fs.writeFileSync(settingsPath, JSON.stringify(data, null, 4));
+const saveSettings = async (data) => {
+  await connectDB();
+  for (const [guildId, val] of Object.entries(data)) {
+    await Settings.findOneAndUpdate({ guildId }, val, { upsert: true });
+  }
 };
 
-module.exports = {
-    getSettings,
-    saveSettings
-};
+module.exports = { getSettings, saveSettings };

@@ -1,21 +1,18 @@
-const fs = require('fs');
-const path = require('path');
+const { connectDB, BadWords } = require("../models");
 
-const badwordsPath = path.join(__dirname, '../data/badwords.json');
-
-const getBadWords = () => {
-    try {
-        if (!fs.existsSync(badwordsPath)) return {};
-        const data = fs.readFileSync(badwordsPath, 'utf8');
-        return data ? JSON.parse(data) : {};
-    } catch { return {}; }
+const getBadWords = async () => {
+  await connectDB();
+  const docs = await BadWords.find({});
+  const result = {};
+  docs.forEach(d => result[d.guildId] = d.words);
+  return result;
 };
 
-const saveBadWords = (data) => {
-    fs.writeFileSync(badwordsPath, JSON.stringify(data, null, 4));
+const saveBadWords = async (data) => {
+  await connectDB();
+  for (const [guildId, words] of Object.entries(data)) {
+    await BadWords.findOneAndUpdate({ guildId }, { words }, { upsert: true });
+  }
 };
 
-module.exports = {
-    getBadWords,
-    saveBadWords
-};
+module.exports = { getBadWords, saveBadWords };

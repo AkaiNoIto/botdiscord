@@ -1,21 +1,21 @@
-const fs = require('fs');
-const path = require('path');
+const { connectDB, CustomCommands } = require("../models");
 
-const commandsPath = path.join(__dirname, '../data/customCommands.json');
-
-const getCustomCommands = () => {
-    try {
-        if (!fs.existsSync(commandsPath)) return {};
-        const data = fs.readFileSync(commandsPath, 'utf8');
-        return data ? JSON.parse(data) : {};
-    } catch { return {}; }
+const getCustomCommands = async () => {
+  await connectDB();
+  const docs = await CustomCommands.find({});
+  const result = {};
+  docs.forEach(d => {
+    result[d.guildId] = {};
+    d.commands.forEach((val, key) => result[d.guildId][key] = { text: val.text, image: val.image });
+  });
+  return result;
 };
 
-const saveCustomCommands = (data) => {
-    fs.writeFileSync(commandsPath, JSON.stringify(data, null, 4));
+const saveCustomCommands = async (data) => {
+  await connectDB();
+  for (const [guildId, commands] of Object.entries(data)) {
+    await CustomCommands.findOneAndUpdate({ guildId }, { commands }, { upsert: true });
+  }
 };
 
-module.exports = {
-    getCustomCommands,
-    saveCustomCommands
-};
+module.exports = { getCustomCommands, saveCustomCommands };

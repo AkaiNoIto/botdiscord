@@ -1,53 +1,30 @@
-const fs = require('fs');
-const path = require('path');
-const { getEconomy } = require('./economyManager');
+const { connectDB, Stats, Economy } = require("../models");
 
-const statsPath = path.join(__dirname, '../data/stats.json');
-
-const getStats = () => {
-    try {
-        if (!fs.existsSync(statsPath)) return { history: [] };
-        const data = fs.readFileSync(statsPath, 'utf8');
-        return data ? JSON.parse(data) : { history: [] };
-    } catch { return { history: [] }; }
+const getStats = async () => {
+  await connectDB();
+  const doc = await Stats.findOne({});
+  return doc ? { history: doc.history } : { history: [] };
 };
 
-const saveStats = (data) => {
-    fs.writeFileSync(statsPath, JSON.stringify(data, null, 4));
-};
+const trackStats = async (client) => {
+  await connectDB();
+  const now = new Date();
+  const dateStr = now.toISOString().split("T")[0];
+  const stats = await getStats();
 
-const trackStats = (client) => {
-    const now = new Date();
-    const dateStr = now.toISOString().split('T')[0];
-    const stats = getStats();
+  if (stats.history.length > 0 && stats.history[stats.history.length - 1].date === dateStr) return;
 
-    // Avoid multiple tracks per day
-    if (stats.history.length > 0 && stats.history[stats.history.length - 1].date === dateStr) return;
+  let totalMembers = 0;
+  let totalCoins = 0;
+  const economy = await Economy.find({});
+  economy.forEach(e => totalCoins += e.balance || 0);
+  client.guilds.cache.forEach(guild => totalMembers += guild.memberCount);
 
-    let totalMembers = 0;
-    let totalCoins = 0;
-    const economy = getEconomy();
+  stats.history.push({ date: dateStr, members: totalMembers, wealth: totalCoins });
+  if (stats.history.length > 30) stats.history.shift();
 
-    client.guilds.cache.forEach(guild => {
-        totalMembers += guild.memberCount;
-        if (economy[guild.id]) {
-            Object.values(economy[guild.id]).forEach(user => {
-                totalCoins += user.coins || 0;
-            });
-        }
-    });
-
-    stats.history.push({
-        date: dateStr,
-        members: totalMembers,
-        wealth: totalCoins
-    });
-
-    // Keep only last 30 days
-    if (stats.history.length > 30) stats.history.shift();
-
-    saveStats(stats);
-    console.log(`📊 Stats tracked for ${dateStr}: ${totalMembers} members, ${totalCoins} coins total.`);
+  await Stats.findOneAndUpdate({}, { history: stats.history }, { upsert: true });
+  console.log(`Stats tracked for ${dateStr}`);
 };
 
 module.exports = { getStats, trackStats };

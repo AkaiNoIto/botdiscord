@@ -1,18 +1,18 @@
-const fs = require('fs');
-const path = require('path');
+const { connectDB, Shop } = require("../models");
 
-const shopPath = path.join(__dirname, '../data/shop.json');
-
-const getShop = () => {
-    try {
-        if (!fs.existsSync(shopPath)) return {};
-        const data = fs.readFileSync(shopPath, 'utf8');
-        return data ? JSON.parse(data) : {};
-    } catch { return {}; }
+const getShop = async () => {
+  await connectDB();
+  const docs = await Shop.find({});
+  const result = {};
+  docs.forEach(d => result[d.guildId] = d.items);
+  return result;
 };
 
-const saveShop = (data) => {
-    fs.writeFileSync(shopPath, JSON.stringify(data, null, 4));
+const saveShop = async (data) => {
+  await connectDB();
+  for (const [guildId, items] of Object.entries(data)) {
+    await Shop.findOneAndUpdate({ guildId }, { items }, { upsert: true });
+  }
 };
 
 module.exports = { getShop, saveShop };

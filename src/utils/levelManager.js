@@ -1,18 +1,23 @@
-const fs = require('fs');
-const path = require('path');
+const { connectDB, Level } = require("../models");
 
-const levelsPath = path.join(__dirname, '../data/levels.json');
-
-const getLevels = () => {
-    const data = fs.readFileSync(levelsPath, 'utf8');
-    return data ? JSON.parse(data) : {};
+const getLevels = async () => {
+  await connectDB();
+  const docs = await Level.find({});
+  const result = {};
+  docs.forEach(d => {
+    if (!result[d.guildId]) result[d.guildId] = {};
+    result[d.guildId][d.userId] = { xp: d.xp, level: d.level };
+  });
+  return result;
 };
 
-const saveLevels = (data) => {
-    fs.writeFileSync(levelsPath, JSON.stringify(data, null, 4));
+const saveLevels = async (data) => {
+  await connectDB();
+  for (const [guildId, users] of Object.entries(data)) {
+    for (const [userId, val] of Object.entries(users)) {
+      await Level.findOneAndUpdate({ guildId, userId }, { xp: val.xp, level: val.level }, { upsert: true });
+    }
+  }
 };
 
-module.exports = {
-    getLevels,
-    saveLevels
-};
+module.exports = { getLevels, saveLevels };

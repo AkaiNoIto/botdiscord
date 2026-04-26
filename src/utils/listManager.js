@@ -1,19 +1,17 @@
-const fs = require('fs');
-const path = require('path');
+const { connectDB, Lists } = require("../models");
 
-const listsPath = path.join(__dirname, '../data/lists.json');
-
-const getLists = () => {
-    return JSON.parse(fs.readFileSync(listsPath, 'utf8'));
+const getLists = async () => {
+  await connectDB();
+  const doc = await Lists.findOne({});
+  return doc ? { whitelist: doc.whitelist, blacklist: doc.blacklist } : { whitelist: [], blacklist: [] };
 };
 
-const saveLists = (data) => {
-    fs.writeFileSync(listsPath, JSON.stringify(data, null, 4));
+const saveLists = async (data) => {
+  await connectDB();
+  await Lists.findOneAndUpdate({}, data, { upsert: true });
 };
 
-module.exports = {
-    getLists,
-    saveLists,
-    isWhitelisted: (id) => getLists().whitelist.includes(id),
-    isBlacklisted: (id) => getLists().blacklist.includes(id)
-};
+const isWhitelisted = async (id) => { const l = await getLists(); return l.whitelist.includes(id); };
+const isBlacklisted = async (id) => { const l = await getLists(); return l.blacklist.includes(id); };
+
+module.exports = { getLists, saveLists, isWhitelisted, isBlacklisted };
