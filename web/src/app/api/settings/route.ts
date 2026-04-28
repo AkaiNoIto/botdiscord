@@ -8,7 +8,26 @@ export async function GET() {
     await connectDB();
     const docs = await Settings.find({});
     const result: any = {};
-    docs.forEach((d: any) => result[d.guildId] = { welcomeChannel: d.welcomeChannel, coinsPerMessage: d.coinsPerMessage, coinsPerVoiceMinute: d.coinsPerVoiceMinute, levelUpChannel: d.levelUpChannel, autoModEnabled: d.autoModEnabled });
+    docs.forEach((d: any) => result[d.guildId] = {
+            welcomeChannel: d.welcomeChannel,
+            welcomeMessage: d.welcomeMessage,
+            coinsPerMessage: d.coinsPerMessage,
+            coinsPerVoiceMinute: d.coinsPerVoiceMinute,
+            levelUpChannel: d.levelUpChannel,
+            levelingEnabled: d.levelingEnabled,
+            autoModEnabled: d.autoModEnabled,
+            ticketCategory: d.ticketCategory,
+            ticketAdminRole: d.ticketAdminRole,
+            ticketLogChannel: d.ticketLogChannel,
+            logMsgSend: d.logMsgSend,
+            logMsgEdit: d.logMsgEdit,
+            logMsgDelete: d.logMsgDelete,
+            logVoice: d.logVoice,
+            adChannelId: d.adChannelId,
+            adRoleId: d.adRoleId,
+            adInitialPrice: d.adInitialPrice,
+            adRechargePrice: d.adRechargePrice
+        });
     return NextResponse.json(result);
 }
 
@@ -22,3 +41,4 @@ export async function POST(req: Request) {
     }
     return NextResponse.json({ success: true });
 }
+
