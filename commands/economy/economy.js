@@ -13,6 +13,7 @@ module.exports = {
         .addSubcommand(sub => sub.setName("shop").setDescription("Parcourir la boutique"))
         .addSubcommand(sub => sub.setName("buy").setDescription("Achetez un article").addStringOption(opt => opt.setName("item").setDescription("Nom de larticle").setRequired(true)))
         .addSubcommand(sub => sub.setName("blackjack").setDescription("Jouez au Blackjack").addIntegerOption(opt => opt.setName("bet").setDescription("Montant a parier").setRequired(true).setMinValue(1)))
+        .addSubcommand(sub => sub.setName("buy-pub").setDescription("Achetez ou rechargez votre role Publicitaire"))
         .addSubcommand(sub => sub.setName("coinflip").setDescription("Lancez une piece").addIntegerOption(opt => opt.setName("bet").setDescription("Montant a parier").setRequired(true).setMinValue(1)).addStringOption(opt => opt.setName("side").setDescription("Choisissez votre cote").setRequired(true).addChoices({ name: "Pile", value: "heads" }, { name: "Face", value: "tails" }))),
 
     async execute(interaction) {
@@ -206,6 +207,45 @@ module.exports = {
                 }
             });
         }
+        if (subcommand === "buy-pub") {
+            const myId = interaction.user.id;
+            const { getSettings } = require("../../src/utils/settingsManager");
+            const { getAdData, saveAdData } = require("../../src/utils/adSystemManager");
+            const settings = (await getSettings())[guildId] || {};
+            const adData = await getAdData();
+
+            if (!settings.adChannelId || !settings.adRoleId) {
+                return interaction.reply({ content: "Le systeme de publicite nest pas configure sur ce serveur.", ephemeral: true });
+            }
+
+            if (!adData[guildId]) adData[guildId] = {};
+            const hasBoughtBefore = adData[guildId][myId] === true;
+            const price = hasBoughtBefore ? (settings.adRechargePrice || 0) : (settings.adInitialPrice || 0);
+
+            if (!economy[myId]) economy[myId] = { balance: 0 };
+            if (economy[myId].balance < price) {
+                return interaction.reply({ content: `Vous avez besoin de **${price}** coins pour ${hasBoughtBefore ? "recharger" : "acheter"} ce role.`, ephemeral: true });
+            }
+
+            const role = interaction.guild.roles.cache.get(settings.adRoleId);
+            if (!role) return interaction.reply({ content: "Le role publicitaire nexiste plus.", ephemeral: true });
+
+            if (interaction.member.roles.cache.has(role.id)) {
+                return interaction.reply({ content: "Vous avez deja le role publicitaire !", ephemeral: true });
+            }
+
+            economy[myId].balance -= price;
+            await saveEconomy(economy);
+            await interaction.member.roles.add(role).catch(() => {});
+
+            if (!hasBoughtBefore) {
+                adData[guildId][myId] = true;
+                await saveAdData(adData);
+            }
+
+            return interaction.reply(`Vous avez ${hasBoughtBefore ? "recharge" : "achete"} le role publicitaire pour **${price}** coins !`);
+        }
     }
 };
+
 
