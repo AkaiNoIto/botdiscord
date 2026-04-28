@@ -1,30 +1,23 @@
-const fs = require('fs');
-const path = require('path');
+const { connectDB, AdSystem } = require("../models");
 
-const filePath = path.join(__dirname, '../data/adSystem.json');
-
-const getAdData = () => {
-    try {
-        if (!fs.existsSync(filePath)) {
-            if (!fs.existsSync(path.dirname(filePath))) {
-                fs.mkdirSync(path.dirname(filePath), { recursive: true });
-            }
-            fs.writeFileSync(filePath, JSON.stringify({}));
-            return {};
-        }
-        return JSON.parse(fs.readFileSync(filePath, 'utf8') || '{}');
-    } catch (e) {
-        console.error("Error reading adSystem.json:", e);
-        return {};
-    }
+const getAdData = async () => {
+  await connectDB();
+  const docs = await AdSystem.find({});
+  const result = {};
+  docs.forEach(d => {
+    if (!result[d.guildId]) result[d.guildId] = {};
+    result[d.guildId][d.userId] = d.hasBought;
+  });
+  return result;
 };
 
-const saveAdData = (data) => {
-    try {
-        fs.writeFileSync(filePath, JSON.stringify(data, null, 4));
-    } catch (e) {
-        console.error("Error saving adSystem.json:", e);
+const saveAdData = async (data) => {
+  await connectDB();
+  for (const [guildId, users] of Object.entries(data)) {
+    for (const [userId, hasBought] of Object.entries(users)) {
+      await AdSystem.findOneAndUpdate({ guildId, userId }, { hasBought }, { upsert: true });
     }
+  }
 };
 
 module.exports = { getAdData, saveAdData };

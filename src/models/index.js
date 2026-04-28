@@ -1,4 +1,4 @@
-﻿const mongoose = require("mongoose");
+const mongoose = require("mongoose");
 
 const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) throw new Error("MONGODB_URI is not defined");
@@ -84,6 +84,13 @@ const BotStatus = mongoose.model("BotStatus", new mongoose.Schema({
   lastUpdate: Number
 }));
 
+const AdSystem = mongoose.model("AdSystem", new mongoose.Schema({
+  guildId: { type: String, required: true },
+  userId: { type: String, required: true },
+  hasBought: { type: Boolean, default: false }
+}));
+
 module.exports = { connectDB, Economy, Level, Settings, BadWords, CustomCommands, Shop, Stats, Lists, BotStatus };
+
 
 
