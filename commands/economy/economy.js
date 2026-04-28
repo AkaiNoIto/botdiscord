@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require("discord.js");
 const { getEconomy, saveEconomy } = require("../../src/utils/economyManager");
 const { getShop, saveShop } = require("../../src/utils/shopManager");
+const { getSettings } = require("../../src/utils/settingsManager");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -59,18 +60,63 @@ module.exports = {
         if (subcommand === "shop") {
             const shop = await getShop();
             const items = shop[guildId] || [];
-            if (items.length === 0) return interaction.reply("La boutique est vide.");
-            const list = items.map(i => `**${i.name}**: ${i.price} coins - ${i.description} (Stock: ${i.stock === -1 ? "inf" : i.stock})`).join("\n");
-            return interaction.reply(`**Boutique**\n\n${list}`);
+            const allSettings = await getSettings();
+            const guildSettings = allSettings[guildId] || {};
+
+            let list = "";
+
+            if (items.length > 0) {
+                list += items.map(i => `**${i.name}** — ${i.price} coins\n${i.description} (Stock: ${i.stock === -1 ? "8" : i.stock})`).join("\n\n");
+            }
+
+            if (guildSettings.adRoleId && guildSettings.adInitialPrice) {
+                const role = interaction.guild.roles.cache.get(guildSettings.adRoleId);
+                const roleName = role ? role.name : "Role Publicitaire";
+                const member = interaction.guild.members.cache.get(interaction.user.id);
+                const hasRole = member?.roles.cache.has(guildSettings.adRoleId);
+                const price = hasRole ? (guildSettings.adRechargePrice || guildSettings.adInitialPrice) : guildSettings.adInitialPrice;
+                const label = hasRole ? "Recharge" : "Premier achat";
+                if (list) list += "\n\n";
+                list += `**${roleName}** — ${price} coins *(${label})*\nPermet de poster vos publicites dans le salon dedie.\nAchetez avec \`/economy buy item:role pub\``;
+            }
+
+            if (!list) return interaction.reply("La boutique est vide.");
+            return interaction.reply(`**?? Boutique**\n\n${list}`);
         }
 
         if (subcommand === "buy") {
             const myId = interaction.user.id;
-            const itemName = interaction.options.getString("item");
+            const itemName = interaction.options.getString("item").toLowerCase();
+            const allSettings = await getSettings();
+            const guildSettings = allSettings[guildId] || {};
+
+            if (guildSettings.adRoleId && itemName.includes("pub")) {
+                if (!economy[myId]) economy[myId] = { balance: 0 };
+                const member = await interaction.guild.members.fetch(myId);
+                const hasRole = member?.roles.cache.has(guildSettings.adRoleId);
+                const price = hasRole ? (guildSettings.adRechargePrice || guildSettings.adInitialPrice) : guildSettings.adInitialPrice;
+
+                if (!price || price <= 0) return interaction.reply({ content: "Le role publicitaire n'est pas configure correctement.", ephemeral: true });
+                if (economy[myId].balance < price) return interaction.reply({ content: `Pas assez de coins ! Il vous faut **${price}** coins.`, ephemeral: true });
+
+                economy[myId].balance -= price;
+                await saveEconomy(economy);
+
+                const role = interaction.guild.roles.cache.get(guildSettings.adRoleId);
+                if (role && member) await member.roles.add(role).catch(() => {});
+
+                if (guildSettings.adChannelId) {
+                    const adChannel = interaction.guild.channels.cache.get(guildSettings.adChannelId);
+                    if (adChannel) await adChannel.send(`?? **${interaction.user.username}** a achete le role publicitaire et peut maintenant poster ses pubs ici !`);
+                }
+
+                return interaction.reply(`? Vous avez achete le **Role Publicitaire** pour **${price}** coins ! ${hasRole ? "*(Recharge)*" : ""}`);
+            }
+
             const shop = await getShop();
             const items = shop[guildId] || [];
-            const item = items.find(i => i.name.toLowerCase() === itemName.toLowerCase());
-            if (!item) return interaction.reply("Article non trouve.");
+            const item = items.find(i => i.name.toLowerCase() === itemName);
+            if (!item) return interaction.reply({ content: "Article non trouve. Tapez le nom exact depuis `/economy shop`.", ephemeral: true });
             if (!economy[myId]) economy[myId] = { balance: 0 };
             if (economy[myId].balance < item.price) return interaction.reply("Pas assez de coins !");
             if (item.stock !== -1 && item.stock <= 0) return interaction.reply("Article en rupture de stock !");

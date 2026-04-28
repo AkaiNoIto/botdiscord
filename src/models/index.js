@@ -35,7 +35,11 @@ const Settings = mongoose.model("Settings", new mongoose.Schema({
   coinsPerMessage: { type: Number, default: 10 },
   coinsPerVoiceMinute: { type: Number, default: 6 },
   levelUpChannel: String,
-  autoModEnabled: { type: Boolean, default: false }, leaveChannel: String, leaveMessage: String
+  autoModEnabled: { type: Boolean, default: false }, leaveChannel: String, leaveMessage: String,
+  ticketCategory: String, ticketAdminRole: String, ticketLogChannel: String,
+  logMsgSend: String, logMsgEdit: String, logMsgDelete: String, logVoice: String,
+  levelingEnabled: { type: Boolean, default: true }, welcomeMessage: String,
+  adChannelId: String, adRoleId: String, adInitialPrice: { type: Number, default: 0 }, adRechargePrice: { type: Number, default: 0 }
 }));
 
 // BadWords: { guildId, words }
@@ -78,4 +82,5 @@ const BotStatus = mongoose.model("BotStatus", new mongoose.Schema({
 }));
 
 module.exports = { connectDB, Economy, Level, Settings, BadWords, CustomCommands, Shop, Stats, Lists, BotStatus };
+
 
