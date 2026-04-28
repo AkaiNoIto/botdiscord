@@ -11,9 +11,10 @@ const getSettings = async () => {
 const saveSettings = async (data) => {
   await connectDB();
   for (const [guildId, val] of Object.entries(data)) {
-    await Settings.findOneAndUpdate({ guildId }, val, { upsert: true });
+    await Settings.findOneAndUpdate({ guildId }, { $set: val }, { upsert: true });
   }
 };
 
 module.exports = { getSettings, saveSettings };
+
 
