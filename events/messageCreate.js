@@ -1,9 +1,39 @@
-const { getLevels, saveLevels } = require("../src/utils/levelManager");
+﻿const { getLevels, saveLevels } = require("../src/utils/levelManager");
 const { getSettings } = require("../src/utils/settingsManager");
 const { getBadWords } = require("../src/utils/badWordsManager");
 const { getEconomy, saveEconomy } = require("../src/utils/economyManager");
 const { getCustomCommands } = require("../src/utils/customCommandsManager");
 const textCooldowns = new Map();
+
+// Retourne le(s) role(s) a donner pour un niveau donne
+const getRolesForLevel = async (guild, level, guildSettings) => {
+    const rolesToAdd = [];
+
+    // Mode 1 : un seul role configure (levelRoleId)
+    if (guildSettings.levelRoleId) {
+        const role = guild.roles.cache.get(guildSettings.levelRoleId);
+        if (role) rolesToAdd.push(role);
+    }
+
+    // Mode 2 : plusieurs roles par niveau (levelRoles = [{ level: 5, roleId: "..." }, ...])
+    if (guildSettings.levelRoles && Array.isArray(guildSettings.levelRoles)) {
+        for (const entry of guildSettings.levelRoles) {
+            if (entry.level === level) {
+                const role = guild.roles.cache.get(entry.roleId);
+                if (role) rolesToAdd.push(role);
+            }
+        }
+    }
+
+    // Mode 3 : tous les roles du serveur (levelAllRoles = true)
+    if (guildSettings.levelAllRoles === true) {
+        guild.roles.cache.forEach(role => {
+            if (!role.managed && role.id !== guild.id) rolesToAdd.push(role);
+        });
+    }
+
+    return rolesToAdd;
+};
 
 module.exports = {
     name: "messageCreate",
@@ -66,14 +96,29 @@ module.exports = {
         }
 
         // Leveling
+        if (guildSettings.levelingEnabled === false) return;
+
         const levels = await getLevels();
         if (!levels[message.guild.id]) levels[message.guild.id] = {};
         if (!levels[message.guild.id][message.author.id]) levels[message.guild.id][message.author.id] = { xp: 0, level: 0 };
         const userStats = levels[message.guild.id][message.author.id];
         userStats.xp += Math.floor(Math.random() * 10) + 15;
         const nextLevelXP = (userStats.level + 1) * 500;
+
         if (userStats.xp >= nextLevelXP) {
             userStats.level++;
+
+            // Donner les roles selon la configuration
+            try {
+                const rolesToAdd = await getRolesForLevel(message.guild, userStats.level, guildSettings);
+                if (rolesToAdd.length > 0) {
+                    await message.member.roles.add(rolesToAdd).catch(() => {});
+                }
+            } catch (e) {
+                console.error("Erreur attribution roles niveau:", e);
+            }
+
+            // Message level up
             const { createLevelUpCard } = require("../src/utils/canvasGenerator");
             const { AttachmentBuilder } = require("discord.js");
             try {
@@ -86,6 +131,7 @@ module.exports = {
                 message.channel.send(`GG ${message.author}! Niveau **${userStats.level}** !`);
             }
         }
+
         await saveLevels(levels);
     }
 };

@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+﻿const mongoose = require("mongoose");
 
 const MONGODB_URI = process.env.MONGODB_URI;
 if (!MONGODB_URI) throw new Error("MONGODB_URI is not defined");
@@ -39,7 +39,10 @@ const Settings = mongoose.model("Settings", new mongoose.Schema({
   ticketCategory: String, ticketAdminRole: String, ticketLogChannel: String,
   logMsgSend: String, logMsgEdit: String, logMsgDelete: String, logVoice: String,
   levelingEnabled: { type: Boolean, default: true }, welcomeMessage: String,
-  adChannelId: String, adRoleId: String, adInitialPrice: { type: Number, default: 0 }, adRechargePrice: { type: Number, default: 0 }
+  adChannelId: String, adRoleId: String, adInitialPrice: { type: Number, default: 0 }, adRechargePrice: { type: Number, default: 0 },
+  levelRoleId: String,
+  levelRoles: [{ level: Number, roleId: String }],
+  levelAllRoles: { type: Boolean, default: false }
 }));
 
 // BadWords: { guildId, words }
