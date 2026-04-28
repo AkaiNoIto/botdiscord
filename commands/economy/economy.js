@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require("discord.js");
+﻿const { SlashCommandBuilder } = require("discord.js");
 const { getEconomy, saveEconomy } = require("../../src/utils/economyManager");
 const { getShop, saveShop } = require("../../src/utils/shopManager");
 const { getSettings } = require("../../src/utils/settingsManager");
@@ -66,7 +66,7 @@ module.exports = {
             let list = "";
 
             if (items.length > 0) {
-                list += items.map(i => `**${i.name}** � ${i.price} coins\n${i.description} (Stock: ${i.stock === -1 ? "8" : i.stock})`).join("\n\n");
+                list += items.map(i => `**${i.name}** — ${i.price} coins\n${i.description} (Stock: ${i.stock === -1 ? "8" : i.stock})`).join("\n\n");
             }
 
             if (guildSettings.adRoleId && guildSettings.adInitialPrice) {
@@ -77,11 +77,11 @@ module.exports = {
                 const price = hasRole ? (guildSettings.adRechargePrice || guildSettings.adInitialPrice) : guildSettings.adInitialPrice;
                 const label = hasRole ? "Recharge" : "Premier achat";
                 if (list) list += "\n\n";
-                list += `**${roleName}** � ${price} coins *(${label})*\nPermet de poster vos publicites dans le salon dedie.\nAchetez avec \`/economy buy item:role pub\``;
+                list += `**${roleName}** — ${price} coins *(${label})*\nPermet de poster vos publicites dans le salon dedie.\nAchetez avec \`/economy buy item:role pub\``;
             }
 
             if (!list) return interaction.reply("La boutique est vide.");
-            return interaction.reply(`**?? Boutique**\n\n${list}`);
+            return interaction.reply(`**🛒 Boutique**\n\n${list}`);
         }
 
         if (subcommand === "buy") {
@@ -107,7 +107,7 @@ module.exports = {
 
                 if (guildSettings.adChannelId) {
                     const adChannel = interaction.guild.channels.cache.get(guildSettings.adChannelId);
-                    if (adChannel) await adChannel.send(`?? **${interaction.user.username}** a achete le role publicitaire et peut maintenant poster ses pubs ici !`);
+                    if (adChannel) await adChannel.send(`🛒 **${interaction.user.username}** a achete le role publicitaire et peut maintenant poster ses pubs ici !`);
                 }
 
                 return interaction.reply(`? Vous avez achete le **Role Publicitaire** pour **${price}** coins ! ${hasRole ? "*(Recharge)*" : ""}`);
