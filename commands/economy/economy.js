@@ -243,10 +243,11 @@ module.exports = {
                 await saveAdData(adData);
             }
 
-            return interaction.editReply(`Vous avez ${hasBoughtBefore ? "recharge" : "achete"} le role publicitaire pour **${price}** coins !`);
+            return interaction.editReply(`? Vous avez ${hasBoughtBefore ? "recharge" : "achete"} le role publicitaire pour **${price}** coins !`);
         }
     }
 };
+
 
 
 
