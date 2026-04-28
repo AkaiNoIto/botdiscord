@@ -73,8 +73,8 @@ export default function SettingsPage() {
     const updated = { ...settings, [guildId]: guildSettings };
     
     await Promise.all([
-      fetch("/api/settings", { method: "POST", body: JSON.stringify(updated) }),
-      fetch("/api/badwords", { method: "POST", body: JSON.stringify(badwords) })
+      fetch("/api/settings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(settings) }),
+      fetch("/api/badwords", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(badwords) })
     ]);
     setSaving(false);
   };
@@ -488,4 +488,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
 
