@@ -419,6 +419,26 @@ export default function SettingsPage() {
                                               placeholder="Laisser vide pour salon actuel..."
                                           />
                                       </div>
+                                   </div>
+                                   <div className="space-y-2 p-5 bg-zinc-900/20 rounded-2xl border border-zinc-900/50">
+                                      <label className="text-xs font-bold text-zinc-500 uppercase">Roles autorises a gagner de l XP</label>
+                                      <p className="text-xs text-zinc-600">Laisser vide = tout le monde. Ajouter des roles pour restreindre.</p>
+                                      <div className="flex flex-wrap gap-2 mb-3">
+                                          {(guildSettings.levelXPRoles || []).map((roleId: string) => (
+                                              <span key={roleId} className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2">
+                                                  {roleId}
+                                                  <button onClick={() => handleUpdateSetting(guildId, 'levelXPRoles', (guildSettings.levelXPRoles || []).filter((r: string) => r !== roleId))} className="hover:text-white">&times;</button>
+                                              </span>
+                                          ))}
+                                          {(guildSettings.levelXPRoles || []).length === 0 && <span className="text-xs text-zinc-600 italic">Tout le monde (aucun filtre).</span>}
+                                      </div>
+                                      <div className="flex gap-2">
+                                          <input type="text" id={"xprole_" + guildId} placeholder="ID du role..." className="flex-1 bg-zinc-900 border border-zinc-800 p-2 rounded-xl text-sm focus:border-indigo-500 outline-none" />
+                                          <button onClick={() => { const inp = document.getElementById("xprole_" + guildId) as HTMLInputElement; if (inp && inp.value.trim()) { const current = guildSettings.levelXPRoles || []; if (!current.includes(inp.value.trim())) { handleUpdateSetting(guildId, 'levelXPRoles', [...current, inp.value.trim()]); } inp.value = ""; } }} className="bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-400 px-4 py-2 rounded-xl font-bold text-sm transition-all">Ajouter</button>
+                                      </div>
+                                   </div
+                                          />
+                                      </div>
                                     </div>
                                  </div>
                                </div>
