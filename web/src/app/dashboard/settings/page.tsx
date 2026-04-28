@@ -441,7 +441,6 @@ export default function SettingsPage() {
                           </div>
                         </div>
                       </div>
-
                       {/* Ad System Protocol */}
                       <div className="space-y-6 pt-10 border-t border-zinc-900">
                         <h3 className="text-xs font-black text-yellow-500 flex items-center gap-2 uppercase tracking-[0.2em] border-b border-zinc-900 pb-3">
@@ -498,14 +497,10 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </div>
-                  </div>
-                </div>
-  );
-})}
-        </div >
+            );
+          })}
+        </div>
       )}
-    </div >
+    </div>
   );
 }
-
-
