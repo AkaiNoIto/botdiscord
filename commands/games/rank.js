@@ -11,7 +11,7 @@ module.exports = {
         const levels = await getLevels();
         const guildLevels = levels[interaction.guild.id];
         const userStats = guildLevels ? guildLevels[user.id] : null;
-        if (!userStats) return interaction.reply({ content: `${user.username} n a pas encore gagne d XP !`, ephemeral: true });
+        if (!userStats) return interaction.editReply({ content: `${user.username} n a pas encore gagne d XP !`, ephemeral: true });
         const embed = new EmbedBuilder()
             .setTitle(`Rang de ${user.username}`)
             .setThumbnail(user.displayAvatarURL())
@@ -20,6 +20,7 @@ module.exports = {
                 { name: "Niveau", value: `${userStats.level}`, inline: true },
                 { name: "XP", value: `${userStats.xp} / ${(userStats.level + 1) * 500}`, inline: true }
             );
-        return interaction.reply({ embeds: [embed] });
+        return interaction.editReply({ embeds: [embed] });
     }
 };
+

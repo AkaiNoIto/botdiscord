@@ -6,6 +6,7 @@ module.exports = {
         .setDescription('Lancez une pièce !'),
     async execute(interaction) {
         const result = Math.random() < 0.5 ? 'Pile' : 'Face';
-        await interaction.reply(`🪙 La pièce est tombée sur : **${result}** !`);
+        await interaction.editReply(`🪙 La pièce est tombée sur : **${result}** !`);
     },
 };
+

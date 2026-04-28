@@ -26,7 +26,7 @@ module.exports = {
 
         if (subcommand === "balance") {
             const user = interaction.options.getUser("target") || interaction.user;
-            return interaction.reply(`${user.username} a **${economy[userId]?.balance || 0}** coins.`);
+            return interaction.editReply(`${user.username} a **${economy[userId]?.balance || 0}** coins.`);
         }
 
         if (subcommand === "daily") {
@@ -37,25 +37,25 @@ module.exports = {
             const lastDaily = economy[myId].lastDaily || 0;
             if (now - lastDaily < cooldown) {
                 const hours = Math.floor((cooldown - (now - lastDaily)) / (60 * 60 * 1000));
-                return interaction.reply({ content: `Attendez encore **${hours}h** !`, ephemeral: true });
+                return interaction.editReply({ content: `Attendez encore **${hours}h** !`, ephemeral: true });
             }
             economy[myId].balance += 500;
             economy[myId].lastDaily = now;
             await saveEconomy(economy);
-            return interaction.reply("Vous avez reclame vos **500** coins quotidiens !");
+            return interaction.editReply("Vous avez reclame vos **500** coins quotidiens !");
         }
 
         if (subcommand === "work") {
             const now = Date.now();
             const myId = interaction.user.id;
             if (!economy[myId]) economy[myId] = { balance: 0, lastDaily: 0, lastWork: 0 };
-            if (now - (economy[myId].lastWork || 0) < 3600000) return interaction.reply({ content: "Attendez 1h avant de retravailler.", ephemeral: true });
+            if (now - (economy[myId].lastWork || 0) < 3600000) return interaction.editReply({ content: "Attendez 1h avant de retravailler.", ephemeral: true });
             const amount = Math.floor(Math.random() * 200) + 50;
             const jobs = ["Livreur", "Developpeur", "Moderateur", "Streamer", "Agriculteur"];
             economy[myId].balance += amount;
             economy[myId].lastWork = now;
             await saveEconomy(economy);
-            return interaction.reply(`Vous avez travaille comme **${jobs[Math.floor(Math.random() * jobs.length)]}** et gagne **${amount}** coins !`);
+            return interaction.editReply(`Vous avez travaille comme **${jobs[Math.floor(Math.random() * jobs.length)]}** et gagne **${amount}** coins !`);
         }
 
         if (subcommand === "shop") {
@@ -81,8 +81,8 @@ module.exports = {
                 list += `**${roleName}** — ${price} coins *(${label})*\nPermet de poster vos publicites dans le salon dedie.\nAchetez avec \`/economy buy item:role pub\``;
             }
 
-            if (!list) return interaction.reply("La boutique est vide.");
-            return interaction.reply(`**?? Boutique**\n\n${list}`);
+            if (!list) return interaction.editReply("La boutique est vide.");
+            return interaction.editReply(`**?? Boutique**\n\n${list}`);
         }
 
         if (subcommand === "buy") {
@@ -97,8 +97,8 @@ module.exports = {
                 const hasRole = member?.roles.cache.has(guildSettings.adRoleId);
                 const price = hasRole ? (guildSettings.adRechargePrice || guildSettings.adInitialPrice) : guildSettings.adInitialPrice;
 
-                if (!price || price <= 0) return interaction.reply({ content: "Le role publicitaire n'est pas configure correctement.", ephemeral: true });
-                if (economy[myId].balance < price) return interaction.reply({ content: `Pas assez de coins ! Il vous faut **${price}** coins.`, ephemeral: true });
+                if (!price || price <= 0) return interaction.editReply({ content: "Le role publicitaire n'est pas configure correctement.", ephemeral: true });
+                if (economy[myId].balance < price) return interaction.editReply({ content: `Pas assez de coins ! Il vous faut **${price}** coins.`, ephemeral: true });
 
                 economy[myId].balance -= price;
                 await saveEconomy(economy);
@@ -111,16 +111,16 @@ module.exports = {
                     if (adChannel) await adChannel.send(`?? **${interaction.user.username}** a achete le role publicitaire et peut maintenant poster ses pubs ici !`);
                 }
 
-                return interaction.reply(`? Vous avez achete le **Role Publicitaire** pour **${price}** coins ! ${hasRole ? "*(Recharge)*" : ""}`);
+                return interaction.editReply(`? Vous avez achete le **Role Publicitaire** pour **${price}** coins ! ${hasRole ? "*(Recharge)*" : ""}`);
             }
 
             const shop = await getShop();
             const items = shop[guildId] || [];
             const item = items.find(i => i.name.toLowerCase() === itemName);
-            if (!item) return interaction.reply({ content: "Article non trouve. Tapez le nom exact depuis `/economy shop`.", ephemeral: true });
+            if (!item) return interaction.editReply({ content: "Article non trouve. Tapez le nom exact depuis `/economy shop`.", ephemeral: true });
             if (!economy[myId]) economy[myId] = { balance: 0 };
-            if (economy[myId].balance < item.price) return interaction.reply("Pas assez de coins !");
-            if (item.stock !== -1 && item.stock <= 0) return interaction.reply("Article en rupture de stock !");
+            if (economy[myId].balance < item.price) return interaction.editReply("Pas assez de coins !");
+            if (item.stock !== -1 && item.stock <= 0) return interaction.editReply("Article en rupture de stock !");
             economy[myId].balance -= item.price;
             if (item.roleId) {
                 const role = interaction.guild.roles.cache.get(item.roleId);
@@ -132,7 +132,7 @@ module.exports = {
                 await saveShop(shop);
             }
             await saveEconomy(economy);
-            return interaction.reply(`Vous avez achete **${item.name}** pour **${item.price}** coins !`);
+            return interaction.editReply(`Vous avez achete **${item.name}** pour **${item.price}** coins !`);
         }
 
         if (subcommand === "coinflip") {
@@ -140,12 +140,12 @@ module.exports = {
             const bet = interaction.options.getInteger("bet");
             const side = interaction.options.getString("side");
             if (!economy[myId]) economy[myId] = { balance: 0 };
-            if (economy[myId].balance < bet) return interaction.reply({ content: "Pas assez de coins !", ephemeral: true });
+            if (economy[myId].balance < bet) return interaction.editReply({ content: "Pas assez de coins !", ephemeral: true });
             const result = Math.random() < 0.5 ? "heads" : "tails";
             const win = side === result;
             economy[myId].balance += win ? bet : -bet;
             await saveEconomy(economy);
-            return interaction.reply(`La piece est tombee sur **${result === "heads" ? "PILE" : "FACE"}** ! Vous avez ${win ? "gagne" : "perdu"} **${bet}** coins !`);
+            return interaction.editReply(`La piece est tombee sur **${result === "heads" ? "PILE" : "FACE"}** ! Vous avez ${win ? "gagne" : "perdu"} **${bet}** coins !`);
         }
 
         if (subcommand === "blackjack") {
@@ -153,7 +153,7 @@ module.exports = {
             const myId = interaction.user.id;
             const bet = interaction.options.getInteger("bet");
             if (!economy[myId]) economy[myId] = { balance: 0 };
-            if (economy[myId].balance < bet) return interaction.reply({ content: "Pas assez de coins !", ephemeral: true });
+            if (economy[myId].balance < bet) return interaction.editReply({ content: "Pas assez de coins !", ephemeral: true });
             const deck = [];
             const suits = ["S", "H", "C", "D"];
             const values = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
@@ -181,7 +181,7 @@ module.exports = {
                 new ButtonBuilder().setCustomId("bj_hit").setLabel("Tirer").setStyle(ButtonStyle.Primary),
                 new ButtonBuilder().setCustomId("bj_stand").setLabel("Rester").setStyle(ButtonStyle.Secondary)
             );
-            const msg = await interaction.reply({ embeds: [createEmbed()], components: [row] });
+            const msg = await interaction.editReply({ embeds: [createEmbed()], components: [row] });
             const collector = msg.createMessageComponentCollector({ filter: i => i.user.id === myId, time: 60000 });
             collector.on("collect", async i => {
                 if (i.customId === "bj_hit") {
@@ -215,7 +215,7 @@ module.exports = {
             const adData = await getAdData();
 
             if (!settings.adChannelId || !settings.adRoleId) {
-                return interaction.reply({ content: "Le systeme de publicite nest pas configure sur ce serveur.", ephemeral: true });
+                return interaction.editReply({ content: "Le systeme de publicite nest pas configure sur ce serveur.", ephemeral: true });
             }
 
             if (!adData[guildId]) adData[guildId] = {};
@@ -224,14 +224,14 @@ module.exports = {
 
             if (!economy[myId]) economy[myId] = { balance: 0 };
             if (economy[myId].balance < price) {
-                return interaction.reply({ content: `Vous avez besoin de **${price}** coins pour ${hasBoughtBefore ? "recharger" : "acheter"} ce role.`, ephemeral: true });
+                return interaction.editReply({ content: `Vous avez besoin de **${price}** coins pour ${hasBoughtBefore ? "recharger" : "acheter"} ce role.`, ephemeral: true });
             }
 
             const role = interaction.guild.roles.cache.get(settings.adRoleId);
-            if (!role) return interaction.reply({ content: "Le role publicitaire nexiste plus.", ephemeral: true });
+            if (!role) return interaction.editReply({ content: "Le role publicitaire nexiste plus.", ephemeral: true });
 
             if (interaction.member.roles.cache.has(role.id)) {
-                return interaction.reply({ content: "Vous avez deja le role publicitaire !", ephemeral: true });
+                return interaction.editReply({ content: "Vous avez deja le role publicitaire !", ephemeral: true });
             }
 
             economy[myId].balance -= price;
@@ -243,9 +243,11 @@ module.exports = {
                 await saveAdData(adData);
             }
 
-            return interaction.reply(`Vous avez ${hasBoughtBefore ? "recharge" : "achete"} le role publicitaire pour **${price}** coins !`);
+            return interaction.editReply(`Vous avez ${hasBoughtBefore ? "recharge" : "achete"} le role publicitaire pour **${price}** coins !`);
         }
     }
 };
+
+
 
 

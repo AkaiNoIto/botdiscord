@@ -23,9 +23,10 @@ module.exports = {
                 .setImage(imageUrl)
                 .setColor('#FEE75C');
 
-            return interaction.reply({ embeds: [embed] });
+            return interaction.editReply({ embeds: [embed] });
         } catch (e) {
-            return interaction.reply({ content: 'Could not fetch animal picture.', ephemeral: true });
+            return interaction.editReply({ content: 'Could not fetch animal picture.', ephemeral: true });
         }
     },
 };
+

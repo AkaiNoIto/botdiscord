@@ -7,7 +7,7 @@ module.exports = {
         .addUserOption(opt => opt.setName('opponent').setDescription('La personne contre qui vous voulez jouer').setRequired(true)),
     async execute(interaction) {
         const opponent = interaction.options.getUser('opponent');
-        if (opponent.bot || opponent.id === interaction.user.id) return interaction.reply({ content: 'Vous ne pouvez pas jouer contre un bot ou vous-même !', ephemeral: true });
+        if (opponent.bot || opponent.id === interaction.user.id) return interaction.editReply({ content: 'Vous ne pouvez pas jouer contre un bot ou vous-même !', ephemeral: true });
 
         const board = Array(9).fill(null);
         let turn = interaction.user.id;
@@ -39,7 +39,7 @@ module.exports = {
             return board.includes(null) ? null : 'tie';
         };
 
-        const response = await interaction.reply({
+        const response = await interaction.editReply({
             content: `${opponent}, ${interaction.user} vous a défié au Morpion ! C'est au tour de ${interaction.user} (X).`,
             components: createBoardRows()
         });
@@ -70,3 +70,4 @@ module.exports = {
         });
     },
 };
+

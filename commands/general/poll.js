@@ -18,8 +18,9 @@ module.exports = {
             .setColor('#5865F2')
             .setFooter({ text: `Asked by ${interaction.user.tag}` });
 
-        const message = await interaction.reply({ embeds: [embed], fetchReply: true });
+        const message = await interaction.editReply({ embeds: [embed], fetchReply: true });
         await message.react('1️⃣');
         await message.react('2️⃣');
     },
 };
+

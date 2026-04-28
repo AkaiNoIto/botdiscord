@@ -13,6 +13,7 @@ module.exports = {
             .setImage(user.displayAvatarURL({ size: 1024 }))
             .setColor('#5865F2');
 
-        return interaction.reply({ embeds: [embed] });
+        return interaction.editReply({ embeds: [embed] });
     },
 };
+

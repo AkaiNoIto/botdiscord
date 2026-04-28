@@ -84,7 +84,7 @@ module.exports = {
 
         const row = new ActionRowBuilder().addComponents(select);
 
-        const response = await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+        const response = await interaction.editReply({ embeds: [embed], components: [row], ephemeral: true });
 
         const collector = response.createMessageComponentCollector({ time: 120000 });
 
@@ -109,3 +109,4 @@ module.exports = {
         });
     }
 };
+

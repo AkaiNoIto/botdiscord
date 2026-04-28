@@ -17,9 +17,10 @@ module.exports = {
                 .setColor('#FF4500')
                 .setFooter({ text: `From r/${subreddit}` });
 
-            return interaction.reply({ embeds: [embed] });
+            return interaction.editReply({ embeds: [embed] });
         } catch (e) {
-            return interaction.reply({ content: 'Could not fetch a meme at the moment.', ephemeral: true });
+            return interaction.editReply({ content: 'Could not fetch a meme at the moment.', ephemeral: true });
         }
     },
 };
+

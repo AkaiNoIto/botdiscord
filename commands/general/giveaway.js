@@ -24,7 +24,7 @@ module.exports = {
         const duration = parseTime(durationStr);
 
         if (!duration) {
-            return interaction.reply({ content: '⚠️ Invalid duration format! Use: `30s`, `5m`, `1h`, `2d`', ephemeral: true });
+            return interaction.editReply({ content: '⚠️ Invalid duration format! Use: `30s`, `5m`, `1h`, `2d`', ephemeral: true });
         }
 
         const endTime = Date.now() + duration;
@@ -36,7 +36,7 @@ module.exports = {
             .setFooter({ text: `Ends at` })
             .setTimestamp(endTime);
 
-        await interaction.reply({ content: '🎉 Giveaway started!', ephemeral: true });
+        await interaction.editReply({ content: '🎉 Giveaway started!', ephemeral: true });
         const msg = await interaction.channel.send({ embeds: [embed] });
         await msg.react('🎉');
 
@@ -81,3 +81,4 @@ module.exports = {
         }, duration);
     },
 };
+

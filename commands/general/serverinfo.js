@@ -20,6 +20,7 @@ module.exports = {
                 { name: 'Boost Level', value: `${guild.premiumTier}`, inline: true }
             );
 
-        return interaction.reply({ embeds: [embed] });
+        return interaction.editReply({ embeds: [embed] });
     },
 };
+

@@ -33,6 +33,7 @@ module.exports = {
             result = 'J\'ai gagné !';
         }
 
-        await interaction.reply(`Vous avez choisi **${labels[userChoice]}**, j'ai choisi **${labels[botChoice]}**. ${result}`);
+        await interaction.editReply(`Vous avez choisi **${labels[userChoice]}**, j'ai choisi **${labels[botChoice]}**. ${result}`);
     },
 };
+

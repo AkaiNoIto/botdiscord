@@ -25,18 +25,19 @@ module.exports = {
                     badWords[guildId].push(word);
                     await saveBadWords(badWords);
                 }
-                return interaction.reply(`Le mot **${word}** a ete ajoute a la liste noire.`);
+                return interaction.editReply(`Le mot **${word}** a ete ajoute a la liste noire.`);
             }
             if (subcommand === "remove") {
                 const word = interaction.options.getString("word").toLowerCase();
                 badWords[guildId] = badWords[guildId].filter(w => w !== word);
                 await saveBadWords(badWords);
-                return interaction.reply(`Le mot **${word}** a ete retire.`);
+                return interaction.editReply(`Le mot **${word}** a ete retire.`);
             }
             if (subcommand === "list") {
                 const list = badWords[guildId].join(", ") || "Aucun mot dans la liste noire.";
-                return interaction.reply(`**Mots Interdits :**\n${list}`);
+                return interaction.editReply(`**Mots Interdits :**\n${list}`);
             }
         }
     }
 };
+

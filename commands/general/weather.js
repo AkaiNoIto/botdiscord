@@ -24,9 +24,10 @@ module.exports = {
                     { name: 'Wind', value: `${data.windspeedKmph} km/h`, inline: true }
                 );
 
-            return interaction.reply({ embeds: [embed] });
+            return interaction.editReply({ embeds: [embed] });
         } catch (e) {
-            return interaction.reply({ content: "Couldn't find that city or the service is down.", ephemeral: true });
+            return interaction.editReply({ content: "Couldn't find that city or the service is down.", ephemeral: true });
         }
     },
 };
+

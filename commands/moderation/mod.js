@@ -36,34 +36,35 @@ module.exports = {
         if (subcommand === 'kick') {
             const target = options.getMember('target');
             const reason = options.getString('reason') || 'Aucune raison fournie';
-            if (!target.kickable) return interaction.reply({ content: 'Je ne peux pas expulser cet utilisateur.', ephemeral: true });
+            if (!target.kickable) return interaction.editReply({ content: 'Je ne peux pas expulser cet utilisateur.', ephemeral: true });
             
             await target.kick(reason);
-            return interaction.reply(`👢 **${target.user.tag}** a été expulsé | ${reason}`);
+            return interaction.editReply(`👢 **${target.user.tag}** a été expulsé | ${reason}`);
         }
 
         // SUBCOMMAND: BAN
         if (subcommand === 'ban') {
             const target = options.getMember('target');
             const reason = options.getString('reason') || 'Aucune raison fournie';
-            if (!target.bannable) return interaction.reply({ content: 'Je ne peux pas bannir cet utilisateur.', ephemeral: true });
+            if (!target.bannable) return interaction.editReply({ content: 'Je ne peux pas bannir cet utilisateur.', ephemeral: true });
             
             await target.ban({ reason });
-            return interaction.reply(`🔨 **${target.user.tag}** a été banni | ${reason}`);
+            return interaction.editReply(`🔨 **${target.user.tag}** a été banni | ${reason}`);
         }
 
         // SUBCOMMAND: UNBAN
         if (subcommand === 'unban') {
             const targetId = options.getString('id');
             await guild.members.unban(targetId);
-            return interaction.reply(`🕊️ L'utilisateur avec l'ID **${targetId}** a été débanni.`);
+            return interaction.editReply(`🕊️ L'utilisateur avec l'ID **${targetId}** a été débanni.`);
         }
 
         // SUBCOMMAND: CLEAR
         if (subcommand === 'clear') {
             const amount = options.getInteger('amount');
             await interaction.channel.bulkDelete(amount, true);
-            return interaction.reply({ content: `🧹 **${amount}** messages ont été supprimés.`, ephemeral: true });
+            return interaction.editReply({ content: `🧹 **${amount}** messages ont été supprimés.`, ephemeral: true });
         }
     },
 };
+
