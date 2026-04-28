@@ -67,7 +67,7 @@ module.exports = {
             let list = "";
 
             if (items.length > 0) {
-                list += items.map(i => `**${i.name}** — ${i.price} coins\n${i.description} (Stock: ${i.stock === -1 ? "8" : i.stock})`).join("\n\n");
+                list += items.map(i => `**${i.name}**   ${i.price} coins\n${i.description} (Stock: ${i.stock === -1 ? "8" : i.stock})`).join("\n\n");
             }
 
             if (guildSettings.adRoleId && guildSettings.adInitialPrice) {
@@ -78,7 +78,7 @@ module.exports = {
                 const price = hasRole ? (guildSettings.adRechargePrice || guildSettings.adInitialPrice) : guildSettings.adInitialPrice;
                 const label = hasRole ? "Recharge" : "Premier achat";
                 if (list) list += "\n\n";
-                list += `**${roleName}** — ${price} coins *(${label})*\nPermet de poster vos publicites dans le salon dedie.\nAchetez avec \`/economy buy item:role pub\``;
+                list += `**${roleName}**   ${price} coins *(${label})*\nPermet de poster vos publicites dans le salon dedie.\nAchetez avec \`/economy buy item:role pub\``;
             }
 
             if (!list) return interaction.editReply("La boutique est vide.");
@@ -111,7 +111,7 @@ module.exports = {
                     if (adChannel) await adChannel.send(`?? **${interaction.user.username}** a achete le role publicitaire et peut maintenant poster ses pubs ici !`);
                 }
 
-                return interaction.editReply(`? Vous avez achete le **Role Publicitaire** pour **${price}** coins ! ${hasRole ? "*(Recharge)*" : ""}`);
+                return interaction.editReply(`âœ… Vous avez achete le **Role Publicitaire** pour **${price}** coins ! ${hasRole ? "*(Recharge)*" : ""}`);
             }
 
             const shop = await getShop();
@@ -243,7 +243,7 @@ module.exports = {
                 await saveAdData(adData);
             }
 
-            return interaction.editReply(`? Vous avez ${hasBoughtBefore ? "recharge" : "achete"} le role publicitaire pour **${price}** coins !`);
+            return interaction.editReply(`âœ… Vous avez ${hasBoughtBefore ? "recharge" : "achete"} le role publicitaire pour **${price}** coins !`);
         }
     }
 };
