@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -398,7 +398,7 @@ export default function SettingsPage() {
                                  <div className="space-y-4">
                                    <div className="flex items-center justify-between p-5 bg-zinc-900/50 rounded-2xl border border-zinc-900 transition-colors">
                                       <div className="flex items-center gap-3">
-                                          <span className="font-bold text-white">Activer le Système d'XP</span>
+                                          <span className="font-bold text-white">Activer le Systeme XP</span>
                                       </div>
                                       <input 
                                           type="checkbox" 

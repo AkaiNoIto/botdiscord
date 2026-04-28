@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { connectDB, Settings } from "@/lib/mongodb";
 
@@ -26,7 +26,8 @@ export async function GET() {
             adChannelId: d.adChannelId,
             adRoleId: d.adRoleId,
             adInitialPrice: d.adInitialPrice,
-            adRechargePrice: d.adRechargePrice
+            adRechargePrice: d.adRechargePrice,
+            levelXPRoles: d.levelXPRoles || []
         });
     return NextResponse.json(result);
 }
