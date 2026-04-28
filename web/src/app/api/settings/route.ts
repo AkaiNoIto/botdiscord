@@ -37,8 +37,9 @@ export async function POST(req: Request) {
     const body = await req.json();
     await connectDB();
     for (const [guildId, val] of Object.entries(body) as [string, any][]) {
-        await Settings.findOneAndUpdate({ guildId }, val, { upsert: true });
+        await Settings.findOneAndUpdate({ guildId }, { $set: val }, { upsert: true });
     }
     return NextResponse.json({ success: true });
 }
+
 
