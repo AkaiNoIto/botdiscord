@@ -1,4 +1,4 @@
-﻿FROM node:22-alpine
+FROM node:22-alpine
 
 RUN apk add --no-cache \
     python3 \
@@ -12,7 +12,8 @@ RUN apk add --no-cache \
     pixman-dev \
     build-base \
     g++ \
-    make
+    make \
+    ffmpeg
 
 WORKDIR /app
 
@@ -22,3 +23,4 @@ RUN YOUTUBE_DL_SKIP_PYTHON_CHECK=1 npm install --omit=dev
 COPY . .
 
 CMD ["node", "index.js"]
+

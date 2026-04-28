@@ -1,6 +1,7 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits, Collection, REST, Routes } = require('discord.js');
+const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { Player } = require('discord-player');
+const { SoundCloudExtractor, AttachmentExtractor } = require('@discord-player/extractor');
 const fs = require('fs');
 const path = require('path');
 
@@ -14,17 +15,15 @@ const client = new Client({
     ]
 });
 
-const { DefaultExtractors } = require('@discord-player/extractor');
-const { YoutubeiExtractor } = require('discord-player-youtubei');
 const { updateBotStatus } = require('./src/utils/botStatusUpdater');
 const { trackStats } = require('./src/utils/statsTracker');
 
 // Setup Music Player
 client.player = new Player(client, {
-    ytdlOptions: {
-        quality: 'highestaudio',
-        highWaterMark: 1 << 25
-    }
+    skipFFmpeg: false,
+    leaveOnEnd: false,
+    leaveOnEmpty: true,
+    leaveOnEmptyCooldown: 10000,
 });
 
 client.commands = new Collection();
@@ -38,14 +37,13 @@ process.on('unhandledRejection', error => {
 async function main() {
     try {
         console.log('⏳ Loading music extractors...');
-        // Register Youtubei first for better YouTube support
-        await client.player.extractors.register(YoutubeiExtractor, {});
-        await client.player.extractors.loadMulti(DefaultExtractors);
+        await client.player.extractors.register(SoundCloudExtractor, {});
+        await client.player.extractors.register(AttachmentExtractor, {});
         console.log('✅ Music extractors loaded successfully!');
     } catch (e) {
         console.error('❌ Failed to load extractors:', e);
     }
-    
+
     // Command and Event Handlers
     const functionsPath = path.join(__dirname, 'src/handlers');
     const functionFiles = fs.readdirSync(functionsPath).filter(file => file.endsWith('.js'));

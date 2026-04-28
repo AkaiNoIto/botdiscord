@@ -1,4 +1,4 @@
-﻿const { getLevels, saveLevels } = require("../src/utils/levelManager");
+const { getLevels, saveLevels } = require("../src/utils/levelManager");
 const { getSettings } = require("../src/utils/settingsManager");
 const { getBadWords } = require("../src/utils/badWordsManager");
 const { getEconomy, saveEconomy } = require("../src/utils/economyManager");
@@ -20,6 +20,16 @@ module.exports = {
 
         const settings = await getSettings();
         const guildSettings = settings[message.guild.id] || {};
+
+        // Ad System
+        if (guildSettings.adChannelId && guildSettings.adRoleId && message.channel.id === guildSettings.adChannelId) {
+            if (message.member.roles.cache.has(guildSettings.adRoleId)) {
+                await message.member.roles.remove(guildSettings.adRoleId).catch(e => console.error("Error removing ad role:", e));
+                message.reply({
+                    content: "Publicite enregistree ! Votre role a ete consomme. Pour poster une nouvelle pub, utilisez /economy buy-pub.",
+                }).then(m => setTimeout(() => m.delete().catch(() => {}), 10000)).catch(() => {});
+            }
+        }
 
         // Auto-Mod
         if (guildSettings.autoModEnabled) {
