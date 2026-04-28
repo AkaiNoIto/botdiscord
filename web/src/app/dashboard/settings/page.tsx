@@ -436,7 +436,7 @@ export default function SettingsPage() {
                                           <input type="text" id={"xprole_" + guildId} placeholder="ID du role..." className="flex-1 bg-zinc-900 border border-zinc-800 p-2 rounded-xl text-sm focus:border-indigo-500 outline-none" />
                                           <button onClick={() => { const inp = document.getElementById("xprole_" + guildId) as HTMLInputElement; if (inp && inp.value.trim()) { const current = guildSettings.levelXPRoles || []; if (!current.includes(inp.value.trim())) { handleUpdateSetting(guildId, 'levelXPRoles', [...current, inp.value.trim()]); } inp.value = ""; } }} className="bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-400 px-4 py-2 rounded-xl font-bold text-sm transition-all">Ajouter</button>
                                       </div>
-                                   </div
+                                   </div>
                                           />
                                       </div>
                                     </div>
