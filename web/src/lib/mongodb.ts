@@ -1,4 +1,4 @@
-﻿import mongoose from "mongoose";
+import mongoose from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI!;
 if (!MONGODB_URI) throw new Error("MONGODB_URI is not defined");
@@ -32,5 +32,8 @@ export const Stats = mongoose.models.Stats || mongoose.model("Stats", StatsSchem
 export const Economy = mongoose.models.Economy || mongoose.model("Economy", EconomySchema);
 export const Level = mongoose.models.Level || mongoose.model("Level", LevelSchema);
 export const Lists = mongoose.models.Lists || mongoose.model("Lists", ListsSchema);
+const BotStatusSchema = new mongoose.Schema({ guilds: Number, guildIds: [String], users: Number, uptime: Number, lastUpdate: Number });
+export const BotStatus = mongoose.models.BotStatus || mongoose.model("BotStatus", BotStatusSchema);
+
 
 
