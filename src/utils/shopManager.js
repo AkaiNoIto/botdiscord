@@ -1,18 +1,15 @@
-const { connectDB, Shop } = require("../models");
+const { readJSON, writeJSON } = require("./jsonStore");
 
-const getShop = async () => {
-  await connectDB();
-  const docs = await Shop.find({});
-  const result = {};
-  docs.forEach(d => result[d.guildId] = d.items);
-  return result;
-};
+const FILE = "shop.json";
+
+const getShop = async () => readJSON(FILE, {});
 
 const saveShop = async (data) => {
-  await connectDB();
+  const current = readJSON(FILE, {});
   for (const [guildId, items] of Object.entries(data)) {
-    await Shop.findOneAndUpdate({ guildId }, { items }, { upsert: true });
+    current[guildId] = items;
   }
+  writeJSON(FILE, current);
 };
 
 module.exports = { getShop, saveShop };

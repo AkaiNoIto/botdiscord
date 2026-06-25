@@ -1,20 +1,15 @@
-﻿const { connectDB, Settings } = require("../models");
+const { readJSON, writeJSON } = require("./jsonStore");
 
-const getSettings = async () => {
-  await connectDB();
-  const docs = await Settings.find({});
-  const result = {};
-  docs.forEach(d => result[d.guildId] = { welcomeChannel: d.welcomeChannel, welcomeMessage: d.welcomeMessage, coinsPerMessage: d.coinsPerMessage, coinsPerVoiceMinute: d.coinsPerVoiceMinute, levelUpChannel: d.levelUpChannel, levelingEnabled: d.levelingEnabled, autoModEnabled: d.autoModEnabled, leaveChannel: d.leaveChannel, leaveMessage: d.leaveMessage, ticketCategory: d.ticketCategory, ticketAdminRole: d.ticketAdminRole, ticketLogChannel: d.ticketLogChannel, logMsgSend: d.logMsgSend, logMsgEdit: d.logMsgEdit, logMsgDelete: d.logMsgDelete, logVoice: d.logVoice, adChannelId: d.adChannelId, adRoleId: d.adRoleId, adInitialPrice: d.adInitialPrice, adRechargePrice: d.adRechargePrice, levelXPRoles: d.levelXPRoles || [] });
-  return result;
-};
+const FILE = "settings.json";
+
+const getSettings = async () => readJSON(FILE, {});
 
 const saveSettings = async (data) => {
-  await connectDB();
+  const current = readJSON(FILE, {});
   for (const [guildId, val] of Object.entries(data)) {
-    await Settings.findOneAndUpdate({ guildId }, { $set: val }, { upsert: true });
+    current[guildId] = { ...(current[guildId] || {}), ...val };
   }
+  writeJSON(FILE, current);
 };
 
 module.exports = { getSettings, saveSettings };
-
-

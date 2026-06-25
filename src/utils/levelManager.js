@@ -1,23 +1,18 @@
-const { connectDB, Level } = require("../models");
+const { readJSON, writeJSON } = require("./jsonStore");
 
-const getLevels = async () => {
-  await connectDB();
-  const docs = await Level.find({});
-  const result = {};
-  docs.forEach(d => {
-    if (!result[d.guildId]) result[d.guildId] = {};
-    result[d.guildId][d.userId] = { xp: d.xp, level: d.level };
-  });
-  return result;
-};
+const FILE = "levels.json";
+
+const getLevels = async () => readJSON(FILE, {});
 
 const saveLevels = async (data) => {
-  await connectDB();
+  const current = readJSON(FILE, {});
   for (const [guildId, users] of Object.entries(data)) {
+    current[guildId] = current[guildId] || {};
     for (const [userId, val] of Object.entries(users)) {
-      await Level.findOneAndUpdate({ guildId, userId }, { xp: val.xp, level: val.level }, { upsert: true });
+      current[guildId][userId] = { xp: val.xp, level: val.level };
     }
   }
+  writeJSON(FILE, current);
 };
 
 module.exports = { getLevels, saveLevels };

@@ -1,18 +1,15 @@
-const { connectDB, BadWords } = require("../models");
+const { readJSON, writeJSON } = require("./jsonStore");
 
-const getBadWords = async () => {
-  await connectDB();
-  const docs = await BadWords.find({});
-  const result = {};
-  docs.forEach(d => result[d.guildId] = d.words);
-  return result;
-};
+const FILE = "badwords.json";
+
+const getBadWords = async () => readJSON(FILE, {});
 
 const saveBadWords = async (data) => {
-  await connectDB();
+  const current = readJSON(FILE, {});
   for (const [guildId, words] of Object.entries(data)) {
-    await BadWords.findOneAndUpdate({ guildId }, { words }, { upsert: true });
+    current[guildId] = words;
   }
+  writeJSON(FILE, current);
 };
 
 module.exports = { getBadWords, saveBadWords };

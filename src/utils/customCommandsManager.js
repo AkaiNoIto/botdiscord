@@ -1,21 +1,15 @@
-const { connectDB, CustomCommands } = require("../models");
+const { readJSON, writeJSON } = require("./jsonStore");
 
-const getCustomCommands = async () => {
-  await connectDB();
-  const docs = await CustomCommands.find({});
-  const result = {};
-  docs.forEach(d => {
-    result[d.guildId] = {};
-    d.commands.forEach((val, key) => result[d.guildId][key] = { text: val.text, image: val.image });
-  });
-  return result;
-};
+const FILE = "customCommands.json";
+
+const getCustomCommands = async () => readJSON(FILE, {});
 
 const saveCustomCommands = async (data) => {
-  await connectDB();
+  const current = readJSON(FILE, {});
   for (const [guildId, commands] of Object.entries(data)) {
-    await CustomCommands.findOneAndUpdate({ guildId }, { commands }, { upsert: true });
+    current[guildId] = commands;
   }
+  writeJSON(FILE, current);
 };
 
 module.exports = { getCustomCommands, saveCustomCommands };

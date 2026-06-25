@@ -1,23 +1,15 @@
-const { connectDB, AdSystem } = require("../models");
+const { readJSON, writeJSON } = require("./jsonStore");
 
-const getAdData = async () => {
-  await connectDB();
-  const docs = await AdSystem.find({});
-  const result = {};
-  docs.forEach(d => {
-    if (!result[d.guildId]) result[d.guildId] = {};
-    result[d.guildId][d.userId] = d.hasBought;
-  });
-  return result;
-};
+const FILE = "adSystem.json";
+
+const getAdData = async () => readJSON(FILE, {});
 
 const saveAdData = async (data) => {
-  await connectDB();
+  const current = readJSON(FILE, {});
   for (const [guildId, users] of Object.entries(data)) {
-    for (const [userId, hasBought] of Object.entries(users)) {
-      await AdSystem.findOneAndUpdate({ guildId, userId }, { hasBought }, { upsert: true });
-    }
+    current[guildId] = { ...(current[guildId] || {}), ...users };
   }
+  writeJSON(FILE, current);
 };
 
 module.exports = { getAdData, saveAdData };

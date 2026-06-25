@@ -1,4 +1,6 @@
-﻿const { connectDB, BotStatus } = require("../models");
+const { writeJSON } = require("./jsonStore");
+
+const FILE = "botStatus.json";
 
 const statuses = [
     { type: "Watching", text: "discord.gg/3Xpqa3TrXV" },
@@ -25,7 +27,6 @@ const rotateStatus = (client) => {
 };
 
 const updateBotStatus = async (client) => {
-    await connectDB();
     const status = {
         guilds: client.guilds.cache.size,
         guildIds: Array.from(client.guilds.cache.keys()),
@@ -33,7 +34,7 @@ const updateBotStatus = async (client) => {
         uptime: client.uptime,
         lastUpdate: Date.now()
     };
-    await BotStatus.findOneAndUpdate({}, status, { upsert: true });
+    writeJSON(FILE, status);
 
     // Demarrer la rotation des statuts
     rotateStatus(client);

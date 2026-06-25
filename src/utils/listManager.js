@@ -1,14 +1,12 @@
-const { connectDB, Lists } = require("../models");
+const { readJSON, writeJSON } = require("./jsonStore");
 
-const getLists = async () => {
-  await connectDB();
-  const doc = await Lists.findOne({});
-  return doc ? { whitelist: doc.whitelist, blacklist: doc.blacklist } : { whitelist: [], blacklist: [] };
-};
+const FILE = "lists.json";
+
+const getLists = async () => readJSON(FILE, { whitelist: [], blacklist: [] });
 
 const saveLists = async (data) => {
-  await connectDB();
-  await Lists.findOneAndUpdate({}, data, { upsert: true });
+  const current = readJSON(FILE, { whitelist: [], blacklist: [] });
+  writeJSON(FILE, { ...current, ...data });
 };
 
 const isWhitelisted = async (id) => { const l = await getLists(); return l.whitelist.includes(id); };
